@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, MessageSquare, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { predefinedChats } from "@/data/predefinedChats";
 
 interface Conversation {
   id: string;
@@ -13,9 +14,10 @@ interface SidebarProps {
   activeId?: string;
   onSelect: (id: string) => void;
   onNew: () => void;
+  onPredefinedSelect: (id: string) => void;
 }
 
-const Sidebar = ({ conversations, activeId, onSelect, onNew }: SidebarProps) => {
+const Sidebar = ({ conversations, activeId, onSelect, onNew, onPredefinedSelect }: SidebarProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -59,30 +61,76 @@ const Sidebar = ({ conversations, activeId, onSelect, onNew }: SidebarProps) => 
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2">
-          <div className="space-y-1">
-            {conversations.map((conv) => (
-              <button
-                key={conv.id}
-                onClick={() => {
-                  onSelect(conv.id);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  "w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors",
-                  "hover:bg-sidebar-accent",
-                  activeId === conv.id
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{conv.title}</span>
-                </div>
-              </button>
-            ))}
+        {/* Predefined Menus */}
+        <div className="px-2 pb-2">
+          <div className="text-xs font-medium text-muted-foreground px-3 py-2">
+            Menu Principal
           </div>
+          <div className="space-y-1">
+            {predefinedChats.map((chat) => {
+              const Icon = chat.icon;
+              return (
+                <button
+                  key={chat.id}
+                  onClick={() => {
+                    onPredefinedSelect(chat.id);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
+                    "hover:bg-sidebar-accent",
+                    activeId === chat.id
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span>{chat.title}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="px-4 py-2">
+          <div className="border-t border-sidebar-border" />
+        </div>
+
+        {/* Conversation History */}
+        <div className="flex-1 overflow-y-auto px-2">
+          {conversations.length > 0 && (
+            <>
+              <div className="text-xs font-medium text-muted-foreground px-3 py-2">
+                Histórico
+              </div>
+              <div className="space-y-1">
+                {conversations.map((conv) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => {
+                      onSelect(conv.id);
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors",
+                      "hover:bg-sidebar-accent",
+                      activeId === conv.id
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{conv.title}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="p-3 border-t border-sidebar-border">
