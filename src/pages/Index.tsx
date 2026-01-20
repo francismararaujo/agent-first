@@ -22,9 +22,11 @@ const Index = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
+  const activePredefinedChat = predefinedChats.find((c) => c.id === activeConversationId);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,8 +36,8 @@ const Index = () => {
     scrollToBottom();
   }, [activeConversation?.messages]);
 
-  const createNewConversation = () => {
-    setActiveConversationId(null);
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
   };
 
   const handlePredefinedSelect = (predefinedId: string) => {
@@ -138,23 +140,21 @@ const Index = () => {
     }, 1500);
   };
 
-  // Filter out predefined chats from history
-  const historyConversations = conversations.filter((c) => !c.isPredefined);
-
   return (
     <div className="flex h-screen bg-background">
       <Sidebar
-        conversations={historyConversations.map((c) => ({ id: c.id, title: c.title }))}
         activeId={activeConversationId ?? undefined}
-        onSelect={setActiveConversationId}
-        onNew={createNewConversation}
         onPredefinedSelect={handlePredefinedSelect}
+        isOpen={isSidebarOpen}
+        onToggle={toggleSidebar}
       />
 
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="h-14 border-b border-border flex items-center justify-center px-4">
-          <h1 className="text-lg font-semibold">Agent First</h1>
+          <h1 className="text-lg font-semibold">
+            {activePredefinedChat ? activePredefinedChat.title : "Agent First"}
+          </h1>
         </header>
 
         {/* Messages area */}
@@ -190,7 +190,7 @@ const Index = () => {
         </div>
 
         {/* Input area */}
-        <div className="absolute bottom-0 left-0 md:left-64 right-0 bg-gradient-to-t from-background via-background to-transparent pt-6 pb-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-transparent pt-6 pb-4">
           <ChatInput onSend={handleSendMessage} disabled={isLoading} />
         </div>
       </main>
